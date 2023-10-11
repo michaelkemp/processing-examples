@@ -1,24 +1,29 @@
+int SIZEWIDE = 1024;
+int SIZEHIGH = 1024;
 
 PImage IMG;
-int[][] IMGARRAY = new int[1024][1024];
+int[][] IMGARRAY = new int[SIZEWIDE][SIZEHIGH];
 
-int ROWS = 32;
-int COLS = 32;
-int STEP = 32;
-int HS = STEP/2;
-int CURRENTNAIL = floor(ROWS * COLS / 2);
+int NAILS = 720;
+int CURRENTNAIL = 0;
+int RADius;
+float RADians;
 
 int FIL = 260;
-int MAX = 220;
+int MAX = 240;
 
 void setup() {
   background(255);
-  strokeWeight(0.25);
+  strokeWeight(0.125);
   stroke(0, 0, 0, 255);
+  size(1024,1024);
+
+  
+  RADius = floor(width/2) - 2;
+  RADians = TWO_PI / NAILS;
   
   IMG = loadImage("images/img1.png");
-  size(1024,1024);
-  IMG.resize(1024,1024);
+  IMG.resize(SIZEHIGH,SIZEHIGH);
   for(int y=0; y<IMG.height; ++y) {
     for(int x=0; x<IMG.width; ++x) {
       int loc = x + y * IMG.width;
@@ -30,21 +35,20 @@ void setup() {
 
 
 void draw() {
-  int xST, yST, xND, yND, nextNAIL;
-  float maxCOL; 
-  
-  for(int many =0; many<10; ++many) {
-    xST = floor(CURRENTNAIL % ROWS) * STEP;
-    yST = floor(CURRENTNAIL / COLS) * STEP;
-    xND = 0;
-    yND = 0;
-    maxCOL = MAX;
-    nextNAIL = CURRENTNAIL;
-    
-    for(int nail = 0; nail < (ROWS * COLS); ++nail) {
+    float angleStart = RADians * CURRENTNAIL;
+    int xST = round(RADius * cos(angleStart) + width / 2);
+    int yST = round(RADius * sin(angleStart) + height / 2);
+    int xND = 0;
+    int yND = 0;
+    int nextNAIL = CURRENTNAIL;
+    float maxCOL = MAX;
+
+    for (int nail = 0; nail < NAILS; ++nail) {
       if (nail == CURRENTNAIL) continue; 
-      int xTMP = floor(nail % ROWS) * STEP;
-      int yTMP = floor(nail / COLS) * STEP;
+      
+      float angND = RADians * nail;
+      int xTMP = round(RADius * cos(angND) + width / 2);
+      int yTMP = round(RADius * sin(angND) + height / 2);
       float tmp = getCol(xST, yST, xTMP, yTMP);
       if (tmp < maxCOL) {
         maxCOL = tmp;
@@ -54,15 +58,14 @@ void draw() {
       }
     }
     if (nextNAIL != CURRENTNAIL) {
-      line(xST+HS, yST+HS, xND+HS, yND+HS);
+      line(xST, yST, xND, yND);
       setCol(xST, yST, xND, yND);
       CURRENTNAIL = nextNAIL;
     } else {
       println("Done");
       noLoop();
-      break;
+      save("string-img1.png");
     }
-  }  
     
 }
 
